@@ -1,0 +1,13 @@
+site_name: Datomic Queries Book
+
+nav:
+  - Home: index.md
+  - New Page 1: new_page1.md
+  - New Page 2: new_page2.md
+
+theme:
+  name: material
+
+
+theme:
+  name: readthedocs
