@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>The Data Model We Will Use - Datomic Queries Book</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "The Data Model We Will Use";
+        var mkdocs_page_input_path = "new_page2.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Datomic Queries Book
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">The Data Model We Will Use</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#example-schema-definitions">Example Schema Definitions</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Datomic Queries Book</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">The Data Model We Will Use</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="the-data-model-we-will-use">The Data Model We Will Use</h1>
+<p>If you're new to Datomic modeling I highly recommend you to read the docs regarding the <a href="https://docs.datomic.com/schema/schema-reference.html">Datomic Schema</a>.</p>
+<hr />
+<p>We will build a Movie Catalog, very similar to IMDB, that way we can explore the different ways to leverage Datomic and it's queries capabilities.</p>
+<p>For those who doesn't know, <a href="https://www.imdb.com">IMDB</a> is a popular website were you can find information about movies, series, directors, actors, and actresses and actually get the connection between those people.</p>
+<p>Here is the outline of our Movie and Series Catalog data model:</p>
+<ol>
+<li>
+<p><strong>Movies</strong></p>
+<ul>
+<li>Title</li>
+<li>Release Year</li>
+<li>Genre</li>
+<li>Director (reference to a Person entity)</li>
+<li>Cast (references to multiple Person entities)</li>
+<li>Ratings (list of ratings for the movie)</li>
+</ul>
+</li>
+<li>
+<p><strong>Series</strong></p>
+<ul>
+<li>Title</li>
+<li>Release Year</li>
+<li>Genre</li>
+<li>Director (reference to a Person entity)</li>
+<li>Cast (references to multiple Person entities)</li>
+<li>Episodes (references to multiple Episode entities)</li>
+</ul>
+</li>
+<li>
+<p><strong>Episodes</strong></p>
+<ul>
+<li>Title</li>
+<li>Season</li>
+<li>Episode Number</li>
+<li>Air Date</li>
+<li>Ratings (list of ratings for the episode)</li>
+</ul>
+</li>
+<li>
+<p><strong>Persons</strong></p>
+<ul>
+<li>Name</li>
+<li>Birthdate</li>
+<li>Roles (Actor, Director, etc.)</li>
+</ul>
+</li>
+<li>
+<p><strong>Genres</strong></p>
+<ul>
+<li>Name</li>
+</ul>
+</li>
+<li>
+<p><strong>Ratings</strong></p>
+<ul>
+<li>Rating Value</li>
+<li>Reviewer (reference to a Person entity)</li>
+<li>Date</li>
+</ul>
+</li>
+</ol>
+<h3 id="example-schema-definitions">Example Schema Definitions</h3>
+<pre><code class="language-clojure">;; Define schema for movies
+{:db/ident       :movie/title
+ :db/valueType   :db.type/string
+ :db/cardinality :db.cardinality/one
+ :db/doc         &quot;The title of the movie&quot;}
+
+{:db/ident       :movie/release-year
+ :db/valueType   :db.type/long
+ :db/cardinality :db.cardinality/one
+ :db/doc         &quot;The release year of the movie&quot;}
+
+{:db/ident       :movie/genre
+ :db/valueType   :db.type/ref
+ :db/cardinality :db.cardinality/many
+ :db/doc         &quot;The genre of the movie&quot;}
+
+{:db/ident       :movie/director
+ :db/valueType   :db.type/ref
+ :db/cardinality :db.cardinality/one
+ :db/doc         &quot;The director of the movie&quot;}
+
+{:db/ident       :movie/cast
+ :db/valueType   :db.type/ref
+ :db/cardinality :db.cardinality/many
+ :db/doc         &quot;The cast of the movie&quot;}
+
+{:db/ident       :movie/ratings
+ :db/valueType   :db.type/ref
+ :db/cardinality :db.cardinality/many
+ :db/doc         &quot;Ratings for the movie&quot;}
+
+;; Define schema for series
+{:db/ident       :series/title
+ :db/valueType   :db.type/string
+ :db/cardinality :db.cardinality/one
+ :db/doc         &quot;The title of the series&quot;}
+
+{:db/ident       :series/release-year
+ :db/valueType   :db.type/long
+ :db/cardinality :db.cardinality/one
+ :db/doc         &quot;The release year of the series&quot;}
+
+{:db/ident       :series/genre
+ :db/valueType   :db.type/ref
+ :db/cardinality :db.cardinality/many
+ :db/doc         &quot;The genre of the series&quot;}
+
+{:db/ident       :series/director
+ :db/valueType   :db.type/ref
+ :db/cardinality :db.cardinality/one
+ :db/doc         &quot;The director of the series&quot;}
+
+{:db/ident       :series/cast
+ :db/valueType   :db.type/ref
+ :db/cardinality :db.cardinality/many
+ :db/doc         &quot;The cast of the series&quot;}
+
+{:db/ident       :series/episodes
+ :db/valueType   :db.type/ref
+ :db/cardinality :db.cardinality/many
+ :db/doc         &quot;Episodes of the series&quot;}
+
+;; Define schema for episodes
+{:db/ident       :episode/title
+ :db/valueType   :db.type/string
+ :db/cardinality :db.cardinality/one
+ :db/doc         &quot;The title of the episode&quot;}
+
+{:db/ident       :episode/season
+ :db/valueType   :db.type/long
+ :db/cardinality :db.cardinality/one
+ :db/doc         &quot;The season number of the episode&quot;}
+
+{:db/ident       :episode/episode-number
+ :db/valueType   :db.type/long
+ :db/cardinality :db.cardinality/one
+ :db/doc         &quot;The episode number&quot;}
+
+{:db/ident       :episode/air-date
+ :db/valueType   :db.type/instant
+ :db/cardinality :db.cardinality/one
+ :db/doc         &quot;The air date of the episode&quot;}
+
+{:db/ident       :episode/ratings
+ :db/valueType   :db.type/ref
+ :db/cardinality :db.cardinality/many
+ :db/doc         &quot;Ratings for the episode&quot;}
+
+;; Define schema for persons
+{:db/ident       :person/name
+ :db/valueType   :db.type/string
+ :db/cardinality :db.cardinality/one
+ :db/doc         &quot;The name of the person&quot;}
+
+{:db/ident       :person/birthdate
+ :db/valueType   :db.type/instant
+ :db/cardinality :db.cardinality/one
+ :db/doc         &quot;The birthdate of the person&quot;}
+
+{:db/ident       :person/roles
+ :db/valueType   :db.type/string
+ :db/cardinality :db.cardinality/many
+ :db/doc         &quot;The roles of the person (e.g., Actor, Director)&quot;}
+
+;; Define schema for genres
+{:db/ident       :genre/name
+ :db/valueType   :db.type/string
+ :db/cardinality :db.cardinality/one
+ :db/doc         &quot;The name of the genre&quot;}
+
+;; Define schema for ratings
+{:db/ident       :rating/value
+ :db/valueType   :db.type/long
+ :db/cardinality :db.cardinality/one
+ :db/doc         &quot;The rating value&quot;}
+
+{:db/ident       :rating/reviewer
+ :db/valueType   :db.type/ref
+ :db/cardinality :db.cardinality/one
+ :db/doc         &quot;The reviewer of the rating&quot;}
+
+{:db/ident       :rating/date
+ :db/valueType   :db.type/instant
+ :db/cardinality :db.cardinality/one
+ :db/doc         &quot;The date of the rating&quot;}
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
